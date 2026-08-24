@@ -28,7 +28,11 @@ body {
   font-family: var(--font-main);
   min-height: 100vh;
   margin: 0;
-  padding-bottom: 3rem;
+  padding-bottom: 0;
+}
+
+.text-cyan {
+  color: var(--accent-cyan) !important;
 }
 
 /* Glassmorphism Card Style */
@@ -355,6 +359,17 @@ body {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Footer Styling */
+.app-footer {
+  background: rgba(11, 15, 25, 0.9) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.app-footer a:hover {
+  color: #fff !important;
+  text-decoration: underline !important;
 }
 
 /* Notes box */
