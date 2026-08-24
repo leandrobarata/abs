@@ -27,20 +27,33 @@
 
 <body>
 
+  <!-- Floating Telegram Group Button (Bottom-Left) -->
+  <a href="https://t.me/retrofitvcdscodingvw" target="_blank" rel="noopener noreferrer" class="telegram-floating-btn">
+    <i class="fab fa-telegram fa-lg"></i> Grupo Retrofit & VCDS
+  </a>
+
   <!-- App Header -->
   <header class="app-header mb-4">
     <div class="container-fluid px-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div>
-          <div class="brand-title">
-            <i class="fas fa-car-burst"></i> ABS Long Coding Master - VAG 2Q0
+        <!-- Left Side: Brand Title & Telegram Link -->
+        <div class="d-flex flex-column align-items-start gap-1">
+          <div class="d-flex align-items-center gap-3">
+            <div class="brand-title">
+              <i class="fas fa-car-burst"></i> ABS Long Coding Master - VAG 2Q0
+            </div>
+            <!-- Telegram Group Badge (Header Left) -->
+            <a href="https://t.me/retrofitvcdscodingvw" target="_blank" rel="noopener noreferrer"
+              class="btn btn-sm btn-telegram px-3 py-1">
+              <i class="fab fa-telegram me-1"></i> Telegram @retrofitvcdscodingvw
+            </a>
           </div>
           <div class="brand-subtitle">
             Mapeamento Hexadecimal & Binário (Bit 0..Bit 7) para ABS 2Q0 (Polo, Virtus, T-Cross, Nivus)
           </div>
         </div>
 
-        <!-- Controls: Presets & Undo/Redo -->
+        <!-- Right Side Controls: Presets & Undo/Redo -->
         <div class="d-flex flex-wrap align-items-center gap-3">
           <div>
             <label class="form-label text-muted mb-1 small"><i class="fas fa-folder-open me-1"></i> Presets 2Q0 da
@@ -288,17 +301,21 @@
 
   </main>
 
-  <!-- App Footer with Reference Link -->
+  <!-- App Footer with Reference Link & Telegram Link -->
   <footer class="app-footer text-center py-4 mt-5 border-top border-secondary bg-dark text-muted">
     <div class="container">
-      <p class="mb-1 small">
-        <i class="fas fa-book-open me-2"></i> Documentação e Mapeamento de Referência de Long Coding ABS VAG:
-      </p>
-      <p class="mb-0 font-monospace small">
-        <a href="https://docs.google.com/spreadsheets/d/1V-OKyWGNWASIKmDf_YrTnT22BEh8ocQ1V1qpXOTBX84/edit?gid=2005959823#gid=2005959823"
-          target="_blank" rel="noopener noreferrer" class="text-cyan text-decoration-none fw-bold">
-          <i class="fas fa-external-link-alt me-1"></i> Abrir Planilha Google Sheets de Referência (VAG ABS Long Coding)
+      <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mb-2">
+        <a href="https://t.me/retrofitvcdscodingvw" target="_blank" rel="noopener noreferrer"
+          class="btn btn-sm btn-telegram">
+          <i class="fab fa-telegram me-1"></i> Entrar no Grupo Telegram @retrofitvcdscodingvw
         </a>
+        <a href="https://docs.google.com/spreadsheets/d/1V-OKyWGNWASIKmDf_YrTnT22BEh8ocQ1V1qpXOTBX84/edit?gid=2005959823#gid=2005959823"
+          target="_blank" rel="noopener noreferrer" class="text-cyan text-decoration-none fw-bold small">
+          <i class="fas fa-external-link-alt me-1"></i> Abrir Planilha Google Sheets de Referência
+        </a>
+      </div>
+      <p class="mb-0 text-secondary extra-small" style="font-size: 0.75rem;">
+        ABS Long Coding Master - VAG 2Q0 Platform | Hospedado no GitHub Pages
       </p>
     </div>
   </footer>

@@ -12,6 +12,7 @@
   --accent-green: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
+  --telegram-blue: #229ed9;
   --glow-cyan: rgba(6, 182, 212, 0.25);
   --glow-blue: rgba(59, 130, 246, 0.25);
   --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -33,6 +34,49 @@ body {
 
 .text-cyan {
   color: var(--accent-cyan) !important;
+}
+
+/* Telegram Button & Badge */
+.btn-telegram {
+  background-color: var(--telegram-blue);
+  color: #ffffff !important;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-telegram:hover {
+  background-color: #1d8bc0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 158, 217, 0.4);
+}
+
+.telegram-floating-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 1500;
+  background: var(--telegram-blue);
+  color: #fff !important;
+  padding: 0.6rem 1rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease-in-out;
+  backdrop-filter: blur(8px);
+}
+
+.telegram-floating-btn:hover {
+  background: #1b87ba;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(34, 158, 217, 0.5);
 }
 
 /* Glassmorphism Card Style */
