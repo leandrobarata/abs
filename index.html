@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABS Long Coding Master - VAG 2Q0 (58 Bytes)</title>
+  <title>ABS Long Coding Master - VAG 2Q0 (58 Bytes & Bits Binários)</title>
   <meta name="description"
-    content="Sistema de codificação longa, recálculo de checksums e espelhamento de Bytes exclusivo para módulos de freio ABS VAG 2Q0 (Volkswagen Polo, Virtus, T-Cross, Nivus, Skoda, Seat).">
+    content="Sistema de codificação longa, recálculo de checksums, decodificação de bits binários e espelhamento de Bytes para módulos de freio ABS VAG 2Q0 (VW Polo, Virtus, T-Cross, Nivus, Skoda, Seat).">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,7 +36,7 @@
             <i class="fas fa-car-burst"></i> ABS Long Coding Master - VAG 2Q0
           </div>
           <div class="brand-subtitle">
-            Sistema de Mapeamento, Decodificação e Cálculo de Checksum/Mirrors ABS VAG 2Q0 (Polo, Virtus, T-Cross, Nivus)
+            Mapeamento Hexadecimal & Binário (Bit 0..Bit 7) para ABS 2Q0 (Polo, Virtus, T-Cross, Nivus)
           </div>
         </div>
 
@@ -106,6 +106,9 @@
           <button id="btnCopyCodeSpaced" class="btn btn-outline-light">
             <i class="fas fa-align-center me-1"></i> Copiar Formatado (Espaçado)
           </button>
+          <button id="btnCopyBinaryStream" class="btn btn-outline-success">
+            <i class="fas fa-binary me-1"></i> Copiar Stream Binário Completo
+          </button>
         </div>
 
         <div>
@@ -135,6 +138,17 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Full Binary Stream Visualizer Panel -->
+    <div class="glass-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="m-0 text-cyan"><i class="fas fa-binary me-2"></i> Stream Binário Completo (Bit 7 -> Bit 0 de cada Byte):</h5>
+        <span class="small text-muted">Exibição de todos os bits binários de cada byte do Long Code</span>
+      </div>
+      <div id="fullBinaryView">
+        <!-- Rendered by JS -->
       </div>
     </div>
 
@@ -217,7 +231,7 @@
       <div class="col-lg-7">
         <div class="glass-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="m-0 text-cyan"><i class="fas fa-th me-2"></i> Grade Interativa de Bytes (2Q0):</h5>
+            <h5 class="m-0 text-cyan"><i class="fas fa-th me-2"></i> Grade Interativa de Bytes com Binários (2Q0):</h5>
             <span class="small text-muted">Clique em qualquer Byte para inspecionar/editar</span>
           </div>
 
@@ -240,7 +254,7 @@
       <!-- Checksum Health Table -->
       <div class="col-lg-6">
         <div class="glass-card">
-          <h5 class="text-cyan mb-3"><i class="fas fa-heart-pulse me-2"></i> Inspetor de Saúde dos Espelhos 2Q0:</h5>
+          <h5 class="text-cyan mb-3"><i class="fas fa-heart-pulse me-2"></i> Inspetor de Saúde dos Espelhos (Hex & Binário):</h5>
           <div class="table-responsive" style="max-height: 300px;">
             <table class="table table-dark table-hover table-sm align-middle small">
               <thead>
@@ -264,7 +278,7 @@
       <!-- Diff Viewer -->
       <div class="col-lg-6">
         <div class="glass-card">
-          <h5 class="text-cyan mb-3"><i class="fas fa-code-compare me-2"></i> Comparador de Modificações (Diff Viewer):</h5>
+          <h5 class="text-cyan mb-3"><i class="fas fa-code-compare me-2"></i> Comparador de Modificações Hex & Binárias:</h5>
           <div id="diffViewer">
             <!-- Rendered by JS -->
           </div>

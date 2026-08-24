@@ -1,6 +1,6 @@
 /**
  * ABS Long Coding Master - 2Q0 Platform Exclusive Logic
- * Mapeamento completo e cálculo de espelhos/checksums para plataforma VAG 2Q0 (58 Bytes)
+ * Mapeamento completo, decodificação binária de bits e cálculo de espelhos/checksums para VAG 2Q0 (58 Bytes)
  */
 
 (function () {
@@ -61,6 +61,10 @@
 
   function formatCodeContinuous(bytes) {
     return bytes.join('');
+  }
+
+  function formatFullBinary(bytes) {
+    return bytes.map((b, idx) => `B${idx}: ${hexToBin(b)}`).join(' | ');
   }
 
   function getMirrorMap() {
@@ -206,7 +210,6 @@
     const bytes = state.currentBytes;
 
     if (type === 'esc_mode') {
-      // Byte 26 (ESP/ESC configuration in 2Q0)
       const byteIdx = 26;
       if (byteIdx < bytes.length) {
         const curBin = hexToBin(bytes[byteIdx]).split('');
@@ -222,7 +225,6 @@
         autoSyncIfNeeded(byteIdx);
       }
     } else if (type === 'hhc') {
-      // Hill Hold Control (Byte 26 Bit 5 / Byte 28)
       const byteIdx = 26;
       if (byteIdx < bytes.length) {
         const curVal = parseInt(bytes[byteIdx], 16);
@@ -231,19 +233,16 @@
         autoSyncIfNeeded(byteIdx);
       }
     } else if (type === 'front_brake') {
-      // Byte 2 (Front Brake - Mirrored in Byte 8)
       if (2 < bytes.length) {
         bytes[2] = value.toUpperCase();
         autoSyncIfNeeded(2);
       }
     } else if (type === 'rear_brake') {
-      // Byte 4 (Rear Brake - Mirrored in Byte 10)
       if (4 < bytes.length) {
         bytes[4] = value.toUpperCase();
         autoSyncIfNeeded(4);
       }
     } else if (type === 'side_assist') {
-      // Byte 51 Side Assist Retrofit (D2 -> F2)
       if (51 < bytes.length) {
         bytes[51] = 'F2';
         autoSyncIfNeeded(51);
@@ -262,6 +261,7 @@
     renderByteDetail(state.selectedByteIndex);
     renderHealthInspector();
     renderDiffViewer();
+    renderFullBinaryView();
     updateBadges();
   }
 
@@ -270,6 +270,26 @@
     if (input) {
       input.value = formatCodeContinuous(state.currentBytes);
     }
+  }
+
+  function renderFullBinaryView() {
+    const container = document.getElementById('fullBinaryView');
+    if (!container) return;
+
+    let html = '<div class="binary-stream-grid">';
+    state.currentBytes.forEach((hexVal, idx) => {
+      const binStr = hexToBin(hexVal);
+      const isSelected = idx === state.selectedByteIndex;
+      html += `
+        <div class="bin-byte-box ${isSelected ? 'selected' : ''}" onclick="ABS_APP.selectByte(${idx})">
+          <div class="bin-byte-label">B${idx} (0x${hexVal})</div>
+          <div class="bin-byte-val">${binStr.substring(0, 4)} ${binStr.substring(4)}</div>
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
   }
 
   function updateBadges() {
@@ -361,6 +381,7 @@
       }
 
       const byteTitle = (platformData[idx] && platformData[idx].title) ? platformData[idx].title : `Byte ${idx}`;
+      const binStr = hexToBin(hexVal);
 
       card.innerHTML = `
         <div class="byte-card-header">
@@ -368,6 +389,7 @@
           ${tagHtml}
         </div>
         <div class="byte-val">${hexVal}</div>
+        <div class="byte-bin-display">${binStr.substring(0, 4)} ${binStr.substring(4)}</div>
         <div class="byte-desc" title="${byteTitle}">${byteTitle.substring(0, 22)}${byteTitle.length > 22 ? '...' : ''}</div>
       `;
 
@@ -400,7 +422,8 @@
       mirrorInfo = `
         <div class="mirror-box ${isSynced ? 'mirror-ok' : 'mirror-warn'}">
           <div><i class="fas ${isSynced ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> Par Espelho 2Q0: <strong>Byte ${partner}</strong></div>
-          <div>Valor Atual no Byte ${partner}: <code>${partnerVal}</code> | Valor Calculado Bit-Reverse: <code>${expectedVal}</code></div>
+          <div>Valor Atual no Byte ${partner}: <code>${partnerVal} (${hexToBin(partnerVal)})</code></div>
+          <div>Valor Calculado Bit-Reverse: <code>${expectedVal} (${hexToBin(expectedVal)})</code></div>
           ${!isSynced ? `<button class="btn btn-sm btn-outline-warning mt-2" onclick="ABS_APP.syncSingleMirror(${byteIdx})">Sincronizar Byte ${partner}</button>` : ''}
         </div>
       `;
@@ -410,18 +433,24 @@
     if (bData.options && bData.options.length > 0) {
       bData.options.forEach(opt => {
         const isSelected = opt.hex.toUpperCase() === hexVal ? 'selected' : '';
-        optionsHtml += `<option value="${opt.hex}" ${isSelected}>[0x${opt.hex}] ${opt.desc}</option>`;
+        const optBin = hexToBin(opt.hex);
+        optionsHtml += `<option value="${opt.hex}" ${isSelected}>[0x${opt.hex} | ${optBin}] ${opt.desc}</option>`;
       });
     }
 
+    // Binary Weight Map: Bit 7=128, Bit 6=64, Bit 5=32, Bit 4=16, Bit 3=8, Bit 2=4, Bit 1=2, Bit 0=1
+    const bitWeights = [128, 64, 32, 16, 8, 4, 2, 1];
     let bitsHtml = '';
+
     for (let bit = 7; bit >= 0; bit--) {
       const bitVal = binStr[7 - bit] === '1';
+      const weight = bitWeights[7 - bit];
       bitsHtml += `
-        <div class="bit-item">
+        <div class="bit-item ${bitVal ? 'active' : ''}">
           <label class="bit-label" for="bit_check_${bit}">
             <input type="checkbox" id="bit_check_${bit}" ${bitVal ? 'checked' : ''} onchange="ABS_APP.toggleBit(${byteIdx}, ${bit}, this.checked)">
             <span class="bit-badge">Bit ${bit}</span>
+            <span class="bit-weight">(Peso ${weight})</span>
             <span class="bit-binary-val">${bitVal ? '1' : '0'}</span>
           </label>
         </div>
@@ -432,10 +461,23 @@
       <div class="card detail-card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h4 class="m-0"><i class="fas fa-microchip"></i> Detalhes do Byte ${byteIdx} (2Q0)</h4>
-          <span class="badge bg-primary fs-6">Hex: 0x${hexVal} | Bin: ${binStr}</span>
+          <span class="badge bg-primary fs-6 font-monospace">Hex: 0x${hexVal} | Bin: ${binStr.substring(0, 4)} ${binStr.substring(4)}</span>
         </div>
         <div class="card-body">
           <h5 class="text-info">${bData.title}</h5>
+
+          <!-- Big Binary Ribbon Display -->
+          <div class="binary-ribbon my-3">
+            <div class="ribbon-title"><i class="fas fa-binary me-1"></i> Representação Binária Completa dos 8 Bits:</div>
+            <div class="ribbon-bits">
+              ${binStr.split('').map((b, i) => `
+                <div class="ribbon-bit-box ${b === '1' ? 'bit-on' : 'bit-off'}">
+                  <span class="ribbon-bit-num">B${7 - i}</span>
+                  <span class="ribbon-bit-val">${b}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
 
           <div class="row my-3 align-items-center">
             <div class="col-md-4">
@@ -451,7 +493,7 @@
           </div>
 
           <div class="my-3">
-            <h6>Inspecionar/Editar Bits Individuais (Bit 7 -> Bit 0):</h6>
+            <h6>Inspecionar/Editar Bits Binários Individuais (Bit 7 -> Bit 0):</h6>
             <div class="bit-grid">
               ${bitsHtml}
             </div>
@@ -501,10 +543,10 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>Byte ${srcIdx}</strong> (0x${valSrc})</td>
-          <td><i class="fas fa-arrow-right text-muted"></i> Bit-Reverse Mirror 2Q0</td>
-          <td><strong>Byte ${tgtIdx}</strong> (0x${valTgt})</td>
-          <td><code>0x${expectedTgt}</code></td>
+          <td><strong>Byte ${srcIdx}</strong> (0x${valSrc} | <code>${hexToBin(valSrc)}</code>)</td>
+          <td><i class="fas fa-arrow-right text-muted"></i> Mirror</td>
+          <td><strong>Byte ${tgtIdx}</strong> (0x${valTgt} | <code>${hexToBin(valTgt)}</code>)</td>
+          <td><code>0x${expectedTgt} (${hexToBin(expectedTgt)})</code></td>
           <td>
             ${isOk ?
               '<span class="badge bg-success"><i class="fas fa-check"></i> Sincronizado</span>' :
@@ -540,7 +582,7 @@
       diffHtml += `
         <div class="diff-chip ${isDiff ? 'changed' : 'unchanged'}">
           <span class="diff-idx">B${i}</span>
-          <span class="diff-val">${origVal} &rarr; <strong>${hexVal}</strong></span>
+          <span class="diff-val">${origVal} [${hexToBin(origVal)}] &rarr; <strong>${hexVal} [${hexToBin(hexVal)}]</strong></span>
         </div>
       `;
     });
@@ -604,6 +646,12 @@
       showToast('Long Code formatado (com espaços) copiado!', 'success');
     });
 
+    document.getElementById('btnCopyBinaryStream')?.addEventListener('click', () => {
+      const binStream = formatFullBinary(state.currentBytes);
+      navigator.clipboard.writeText(binStream);
+      showToast('Stream Binário Completo copiado!', 'success');
+    });
+
     document.getElementById('btnSyncMirrors')?.addEventListener('click', () => {
       syncMirrors();
     });
@@ -620,6 +668,11 @@
   // Public API exposed on window.ABS_APP
   window.ABS_APP = {
     init,
+    selectByte: function (byteIdx) {
+      state.selectedByteIndex = byteIdx;
+      renderAll();
+    },
+
     updateByteHex: function (byteIdx, newHex) {
       newHex = cleanHex(newHex);
       if (!newHex) return;
