@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABS Long Coding Master - VAG 2Q0 (58 Bytes)</title>
+  <meta name="description"
+    content="Sistema de codificação longa, recálculo de checksums e espelhamento de Bytes exclusivo para módulos de freio ABS VAG 2Q0 (Volkswagen Polo, Virtus, T-Cross, Nivus, Skoda, Seat).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- App Header -->
+  <header class="app-header mb-4">
+    <div class="container-fluid px-4">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <div class="brand-title">
+            <i class="fas fa-car-burst"></i> ABS Long Coding Master - VAG 2Q0
+          </div>
+          <div class="brand-subtitle">
+            Sistema de Mapeamento, Decodificação e Cálculo de Checksum/Mirrors ABS VAG 2Q0 (Polo, Virtus, T-Cross, Nivus)
+          </div>
+        </div>
+
+        <!-- Controls: Presets & Undo/Redo -->
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <div>
+            <label class="form-label text-muted mb-1 small"><i class="fas fa-folder-open me-1"></i> Presets 2Q0 da
+              Planilha:</label>
+            <select id="presetSelect" class="form-select form-select-sm">
+              <option value="2q0_tcross_polo">VW T-Cross / Polo / Virtus Brasil (2Q0)</option>
+              <option value="2q0_virtus_india">VW Virtus / Skoda Slavia India (2Q0)</option>
+              <option value="2q0_skoda_kushaq">Skoda Kushaq / VW Taigun (2Q0)</option>
+              <option value="2q0_skoda_kamiq">Skoda Kamiq / Scala (2Q0)</option>
+            </select>
+          </div>
+
+          <div class="d-flex gap-2 align-self-end">
+            <button id="btnUndo" class="btn btn-sm btn-outline-secondary" title="Desfazer (Undo)" disabled>
+              <i class="fas fa-undo"></i>
+            </button>
+            <button id="btnRedo" class="btn btn-sm btn-outline-secondary" title="Refazer (Redo)" disabled>
+              <i class="fas fa-redo"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container-fluid px-4">
+
+    <!-- Top Card: Long Code Input & Main Actions -->
+    <div class="glass-card">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+        <label for="longCodeInput" class="form-label h5 m-0 text-cyan">
+          <i class="fas fa-code me-2"></i> Digite ou Cole o Long Code do ABS (Plataforma 2Q0):
+        </label>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <span id="byteLengthBadge" class="badge bg-secondary fs-6">0 Bytes</span>
+          <span id="mirrorStatusBadge" class="badge badge-success fs-6"><i class="fas fa-check-circle"></i> Espelhos 2Q0
+            OK</span>
+
+          <div class="form-check form-switch ms-3">
+            <input class="form-check-input" type="checkbox" id="chkAutoSync" checked>
+            <label class="form-check-input-label text-light small" for="chkAutoSync">
+              Auto-Sincronizar Espelhos 2Q0
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <textarea id="longCodeInput" class="form-control long-code-textarea text-uppercase font-monospace" rows="2"
+          placeholder="Cole aqui o Long Code 2Q0 (ex: 1C07629124270975007A060341C4243846249000608224F200600070C002)..."></textarea>
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-between gap-2">
+        <div class="d-flex flex-wrap gap-2">
+          <button id="btnSyncMirrors" class="btn btn-warning text-dark font-weight-bold">
+            <i class="fas fa-sync-alt me-1"></i> Recalcular / Sincronizar Todos os Espelhos 2Q0
+          </button>
+          <button id="btnCopyCode" class="btn btn-outline-info">
+            <i class="fas fa-copy me-1"></i> Copiar Long Code
+          </button>
+          <button id="btnCopyCodeSpaced" class="btn btn-outline-light">
+            <i class="fas fa-align-center me-1"></i> Copiar Formatado (Espaçado)
+          </button>
+        </div>
+
+        <div>
+          <button class="btn btn-outline-success" type="button" data-bs-toggle="collapse"
+            data-bs-target="#vinCollapse">
+            <i class="fas fa-id-card me-1"></i> Calcular / Inserir VIN do Veículo (2Q0)
+          </button>
+        </div>
+      </div>
+
+      <!-- VIN Calculator Collapse -->
+      <div class="collapse mt-3" id="vinCollapse">
+        <div class="p-3 border border-secondary rounded bg-dark">
+          <h6 class="text-success"><i class="fas fa-calculator me-2"></i> Calculadora Automática de Bytes VIN (2Q0):</h6>
+          <p class="small text-muted mb-2">
+            Insira os 17 caracteres do VIN do seu veículo para preencher automaticamente os Bytes 1, 3, 5, 7, 9, 11 e 13 do 2Q0:
+          </p>
+          <div class="row g-2 align-items-center">
+            <div class="col-md-6">
+              <input type="text" id="vinInput" class="form-control font-monospace text-uppercase" maxlength="17"
+                placeholder="Ex: 9BWCA4BZ3NP123456">
+            </div>
+            <div class="col-md-3">
+              <button id="btnApplyVin" class="btn btn-success w-100">
+                <i class="fas fa-check me-1"></i> Aplicar VIN ao Long Code
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retrofits & Feature Quick-Toggles -->
+    <div class="glass-card">
+      <h5 class="text-cyan mb-3"><i class="fas fa-sliders me-2"></i> Habilitação Rápida de Serviços & Retrofits (2Q0):</h5>
+
+      <div class="row g-3">
+        <!-- ESC Mode -->
+        <div class="col-md-4">
+          <div class="p-3 border border-secondary rounded bg-dark h-100">
+            <label class="form-label font-weight-bold text-light mb-1"><i class="fas fa-gauge-high text-info me-1"></i>
+              Modo ESC / ESP (Byte 26):</label>
+            <select class="form-select form-select-sm"
+              onchange="ABS_APP.applyRetrofit('esc_mode', this.value); this.value='';">
+              <option value="">-- Selecionar Modo ESC (Byte 26) --</option>
+              <option value="1">x1 - ESC ON (Padrão)</option>
+              <option value="2">x2 - ESC ON / ASR OFF</option>
+              <option value="3">x3 - ESC ON / ESC SPORT</option>
+              <option value="4">x4 - ESC ON / ESC OFF</option>
+              <option value="5">x5 - ESC ON / ASR OFF / ESC OFF</option>
+              <option value="6">x6 - ESC ON / ESC SPORT / ESC OFF</option>
+              <option value="7">x7 - ESC ON / ASR OFF / ESC OFF</option>
+              <option value="8">x8 - ESC ON / ESC SPORT / ESC OFF</option>
+              <option value="9">x9 - ESC ON / ASR OFF / ESC SPORT</option>
+              <option value="A">xA - ASR ON / ASR OFF / ESC SPORT</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Brakes Upgrades -->
+        <div class="col-md-4">
+          <div class="p-3 border border-secondary rounded bg-dark h-100">
+            <label class="form-label font-weight-bold text-light mb-1"><i class="fas fa-compact-disc text-amber me-1"></i>
+              Freios (Byte 2 / Byte 4):</label>
+            <div class="d-flex gap-2 mb-2">
+              <select class="form-select form-select-sm"
+                onchange="ABS_APP.applyRetrofit('front_brake', this.value); this.value='';">
+                <option value="">-- Freio Dianteiro (Byte 2) --</option>
+                <option value="4A">256mm (PR. 1ZG, 1ZJ)</option>
+                <option value="4C">276mm (PR. 1ZE, 1ZQ, 1ZS)</option>
+                <option value="4E">312mm (PR. 1ZB, 1ZU)</option>
+                <option value="8A">276mm India (PR 1ZA)</option>
+                <option value="8B">300mm India (PR 1ZB)</option>
+              </select>
+            </div>
+            <div>
+              <select class="form-select form-select-sm"
+                onchange="ABS_APP.applyRetrofit('rear_brake', this.value); this.value='';">
+                <option value="">-- Freio Traseiro (Byte 4) --</option>
+                <option value="15">Tambor 203mm (PR. 1KG)</option>
+                <option value="5B">Tambor 228mm (PR. 1KA)</option>
+                <option value="35">Disco 230mm (PR. 1KV, 1KD)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assisted Functions -->
+        <div class="col-md-4">
+          <div class="p-3 border border-secondary rounded bg-dark h-100">
+            <label class="form-label font-weight-bold text-light mb-2"><i class="fas fa-shield-halved text-success me-1"></i>
+              Assistentes e Retrofits (2Q0):</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-info" onclick="ABS_APP.applyRetrofit('hhc', true)">
+                <i class="fas fa-mountain me-1"></i> HHC (Hill Hold)
+              </button>
+              <button class="btn btn-sm btn-outline-primary" onclick="ABS_APP.applyRetrofit('side_assist', true)">
+                <i class="fas fa-eye me-1"></i> Side Assist Retrofit (Byte 51 -> F2)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area: Left Grid, Right Inspector -->
+    <div class="row">
+      <!-- Left Column: Interactive Byte Grid -->
+      <div class="col-lg-7">
+        <div class="glass-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="m-0 text-cyan"><i class="fas fa-th me-2"></i> Grade Interativa de Bytes (2Q0):</h5>
+            <span class="small text-muted">Clique em qualquer Byte para inspecionar/editar</span>
+          </div>
+
+          <div id="byteGrid" class="byte-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Selected Byte Detail Inspector -->
+      <div class="col-lg-5">
+        <div id="byteDetailPanel">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Checksum Health Inspector & Diff Viewer -->
+    <div class="row mt-3">
+      <!-- Checksum Health Table -->
+      <div class="col-lg-6">
+        <div class="glass-card">
+          <h5 class="text-cyan mb-3"><i class="fas fa-heart-pulse me-2"></i> Inspetor de Saúde dos Espelhos 2Q0:</h5>
+          <div class="table-responsive" style="max-height: 300px;">
+            <table class="table table-dark table-hover table-sm align-middle small">
+              <thead>
+                <tr>
+                  <th>Byte Original</th>
+                  <th>Tipo</th>
+                  <th>Byte Espelho</th>
+                  <th>Valor Calculado</th>
+                  <th>Status</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody id="mirrorHealthTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diff Viewer -->
+      <div class="col-lg-6">
+        <div class="glass-card">
+          <h5 class="text-cyan mb-3"><i class="fas fa-code-compare me-2"></i> Comparador de Modificações (Diff Viewer):</h5>
+          <div id="diffViewer">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="abs_data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
