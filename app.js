@@ -1,6 +1,6 @@
 /**
  * ABS Long Coding Master - 2Q0 Platform Exclusive Logic
- * Mapeamento completo, decodificação binária de bits e cálculo de espelhos/checksums para VAG 2Q0 (58 Bytes)
+ * Mapeamento completo, decodificação binária de bits, cálculo de espelhos/checksums e seleção sincronizada Hex/Binário
  */
 
 (function () {
@@ -254,6 +254,30 @@
     showToast(`Modificação de serviço/função (${type}) aplicada ao 2Q0!`, 'success');
   }
 
+  // Highlight Textarea Selection for Selected Byte
+  function highlightTextareaByte(byteIdx) {
+    const input = document.getElementById('longCodeInput');
+    if (!input) return;
+
+    const start = byteIdx * 2;
+    const end = start + 2;
+
+    if (start < input.value.length) {
+      input.focus();
+      input.setSelectionRange(start, Math.min(end, input.value.length));
+    }
+  }
+
+  // Select Byte Master Function
+  function selectByte(byteIdx, highlightInput = true) {
+    state.selectedByteIndex = byteIdx;
+    renderAll();
+
+    if (highlightInput) {
+      highlightTextareaByte(byteIdx);
+    }
+  }
+
   // Render Functions
   function renderAll() {
     renderMainInput();
@@ -281,7 +305,7 @@
       const binStr = hexToBin(hexVal);
       const isSelected = idx === state.selectedByteIndex;
       html += `
-        <div class="bin-byte-box ${isSelected ? 'selected' : ''}" onclick="ABS_APP.selectByte(${idx})">
+        <div class="bin-byte-box ${isSelected ? 'selected' : ''}" onclick="ABS_APP.selectByte(${idx}, true)" title="Clique para selecionar e marcar Byte ${idx} no Long Code">
           <div class="bin-byte-label">B${idx} (0x${hexVal})</div>
           <div class="bin-byte-val">${binStr.substring(0, 4)} ${binStr.substring(4)}</div>
         </div>
@@ -394,8 +418,7 @@
       `;
 
       card.addEventListener('click', () => {
-        state.selectedByteIndex = idx;
-        renderAll();
+        selectByte(idx, true);
       });
 
       gridContainer.appendChild(card);
@@ -438,7 +461,6 @@
       });
     }
 
-    // Binary Weight Map: Bit 7=128, Bit 6=64, Bit 5=32, Bit 4=16, Bit 3=8, Bit 2=4, Bit 1=2, Bit 0=1
     const bitWeights = [128, 64, 32, 16, 8, 4, 2, 1];
     let bitsHtml = '';
 
@@ -466,7 +488,6 @@
         <div class="card-body">
           <h5 class="text-info">${bData.title}</h5>
 
-          <!-- Big Binary Ribbon Display -->
           <div class="binary-ribbon my-3">
             <div class="ribbon-title"><i class="fas fa-binary me-1"></i> Representação Binária Completa dos 8 Bits:</div>
             <div class="ribbon-bits">
@@ -542,6 +563,8 @@
         const isOk = valTgt === expectedTgt;
 
         const tr = document.createElement('tr');
+        tr.className = 'cursor-pointer';
+        tr.onclick = () => selectByte(srcIdx, true);
         tr.innerHTML = `
           <td><strong>Byte ${srcIdx}</strong> (0x${valSrc} | <code>${hexToBin(valSrc)}</code>)</td>
           <td><i class="fas fa-arrow-right text-muted"></i> Mirror</td>
@@ -554,7 +577,7 @@
             }
           </td>
           <td>
-            ${!isOk ? `<button class="btn btn-xs btn-warning" onclick="ABS_APP.syncSingleMirror(${srcIdx})">Corrigir</button>` : ''}
+            ${!isOk ? `<button class="btn btn-xs btn-warning" onclick="event.stopPropagation(); ABS_APP.syncSingleMirror(${srcIdx})">Corrigir</button>` : ''}
           </td>
         `;
         tableBody.appendChild(tr);
@@ -580,7 +603,7 @@
       if (isDiff) diffCount++;
 
       diffHtml += `
-        <div class="diff-chip ${isDiff ? 'changed' : 'unchanged'}">
+        <div class="diff-chip ${isDiff ? 'changed' : 'unchanged'}" onclick="ABS_APP.selectByte(${i}, true)" style="cursor: pointer;">
           <span class="diff-idx">B${i}</span>
           <span class="diff-val">${origVal} [${hexToBin(origVal)}] &rarr; <strong>${hexVal} [${hexToBin(hexVal)}]</strong></span>
         </div>
@@ -629,6 +652,15 @@
       }
     });
 
+    // Detect click position in Textarea to auto-select corresponding Byte
+    document.getElementById('longCodeInput')?.addEventListener('click', (e) => {
+      const cursorPos = e.target.selectionStart;
+      const byteIdx = Math.floor(cursorPos / 2);
+      if (byteIdx >= 0 && byteIdx < state.currentBytes.length) {
+        selectByte(byteIdx, false);
+      }
+    });
+
     document.getElementById('chkAutoSync')?.addEventListener('change', (e) => {
       state.autoSyncMirrors = e.target.checked;
       showToast(`Sincronização Automática: ${state.autoSyncMirrors ? 'ATIVADA' : 'DESATIVADA'}`, 'info');
@@ -668,11 +700,7 @@
   // Public API exposed on window.ABS_APP
   window.ABS_APP = {
     init,
-    selectByte: function (byteIdx) {
-      state.selectedByteIndex = byteIdx;
-      renderAll();
-    },
-
+    selectByte,
     updateByteHex: function (byteIdx, newHex) {
       newHex = cleanHex(newHex);
       if (!newHex) return;

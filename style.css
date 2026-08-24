@@ -93,6 +93,11 @@ body {
   color: var(--accent-cyan);
 }
 
+.long-code-textarea::selection {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
 /* Byte Cards Grid */
 .byte-grid {
   display: grid;
@@ -168,7 +173,6 @@ body {
   border-radius: 4px;
   padding: 1px 3px;
   margin-bottom: 0.3rem;
-
 }
 
 .byte-desc {
@@ -196,22 +200,24 @@ body {
   padding: 0.4rem;
   text-align: center;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .bin-byte-box:hover, .bin-byte-box.selected {
   border-color: var(--accent-cyan);
-  background: rgba(6, 182, 212, 0.15);
+  background: rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 0 2px var(--accent-cyan);
 }
 
 .bin-byte-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
 }
 
 .bin-byte-val {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 800;
   color: var(--accent-cyan);
 }
@@ -345,6 +351,10 @@ body {
 .mirror-warn {
   background: rgba(244, 63, 94, 0.15);
   border: 1px solid var(--accent-rose);
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 /* Notes box */
